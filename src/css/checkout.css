@@ -722,6 +722,11 @@
   content: " ";
   clear: both; }
 
+.quantityItem {
+  width: 80px;
+  background-color: grey;
+} 
+
 @media only screen and (max-width: 1280px) {
   .container {
     width: 100%; } }

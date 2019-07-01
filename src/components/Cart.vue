@@ -44,7 +44,7 @@
                   </ul>
                 </div>
                 <ul class="cart-item-list">
-                  <li v-for="item in productList" :key="item">
+                  <li v-for="(item,index) in productList" :key="item.productId">
                     <div class="cart-tab-1">
                       <div class="cart-item-check">
                         <a href="javascript:void 0" class="item-check-btn" v-bind:class="{'check': item.checked}" @click="selectedProduct(item)">
@@ -55,12 +55,12 @@
                         <img v-bind:src="item.productImage" alt="烟">
                       </div>
                       <div class="cart-item-title">
-                        <div class="item-name">{{ item.productName }}</div>
+                        <div class="item-name">{{ index+1 + "、" + item.productName }}</div>
                       </div>
                       <div class="item-include">
                         <dl>
                           <dt>赠送:</dt>
-                          <dd v-for="part in item.parts" v-text="part.partsName" :key="part"></dd>  
+                          <dd v-for="part in item.parts" v-text="part.partsName" :key="part.partsId"></dd>  
                         </dl>
                       </div>
                     </div>
@@ -72,7 +72,7 @@
                         <div class="select-self select-self-open">
                           <div class="quantity">
                             <a href="javascript:;" @click="changeMoney(item,-1)">-</a>
-                            <input type="text" :value="item.productQuantity"  disabled>
+                            <input type="text" :value="item.productQuantity"  disabled class="quantityItem">
                             <a href="javascript:;" @click="changeMoney(item,1)">+</a>
                           </div>
                         </div>
@@ -112,7 +112,7 @@
               </div>
               <div class="cart-foot-r">
                 <div class="item-total">
-                  Item total: <span class="total-price">{{totalMoney | money('元')}}</span>
+                  Item total: <span class="total-price">{{totalMoney | totalMoney('元')}}</span>
                 </div>
                 <div class="next-btn-wrap">
                   <a href="address.html" class="btn btn--red" style="width: 200px">结账</a>
@@ -149,7 +149,6 @@ import Vue from 'vue';
 
 
 export default {
-  name: 'Cart',
   data () {
     return {
       msg: 'Welcome to Your Vue.js App1111',
@@ -157,39 +156,91 @@ export default {
       productList: [],
       totalMoney: 0,
       delFlag: false,
-      delProduct: false
+      delProductFlag: false,
+      checkAllFlag: false
     }
   },
   filters: {
-      money: function(){
-          
-      }
+    money: function(value, unit) {
+        return value.toFixed(2) + " " + unit;
+    },
+    formatMoney: function(value) {
+       return "¥" + value.toFixed(2);
+    }
   },
-  mounted: function(){
+  mounted: function () {
       this.cartView();
   },
   methods:{
-      cartView: function(){
-          var _this = this;
+      cartView: function () {
+          let _this = this;
           this.$http("static/data/cartData.json", { 
               params: {
                   "id":123
               }
-          }).then(function(res){
-            debugger;
+          }).then(res=>{
             res = res.data;
-              _this.productList = res.result.list;
-              _this.totalMoney = res.result.totalMoney;
-
+            this.productList = res.result.list;
+            //this.totalMoney = res.result.totalMoney;
           })
       },
-      checkAllFlag: function(){
-
+      changeMoney(product,method) {
+         if(method > 0){
+            product.productQuantity++;
+            //this.totalMoney += product.productPrice;
+         }else{
+            product.productQuantity--;
+            if (product.productQuantity < 1){
+               product.productQuantity = 1;
+            }
+         }
+         this.calcTotalPrice();
+      },
+      selectedProduct: function(item) {
+        debugger;
+         if(typeof item.checked == "undefined"){
+            Vue.set(item, "checked", true);//给itemset 一个checked变量，值为true
+            //this.$set(item, "checked", true);
+         }else{
+            item.checked = !item.checked;
+         }
+         this.calcTotalPrice();
+      },
+      checkAll: function(flag) {
+        this.checkAllFlag = flag;
+        var _this = this;
+        this.productList.forEach(function(value, index){
+            if(typeof value.checked == "undefined"){
+              //Vue.set(value, "checked", this.checkAllFlag);//给itemset 一个checked变量，值为true
+              _this.$set(value, "checked", _this.checkAllFlag);
+          }else{
+              value.checked = _this.checkAllFlag;
+          }
+        })
+      },
+      calcTotalPrice: function () {
+        var _this = this;
+        this.totalMoney = 0;
+        this.productList.forEach(function(item, index){
+            if(item.checked){
+              _this.totalMoney += item.productQuantity * item.productPrice;
+            }
+        })
+      },
+      delConfirm: function () {
+        this.delFlag = !this.delFlag;
+      },
+      delProduct: function () {
+        
       }
   }
 }
- 
-</script>
-<style src="../css/checkout.css">
 
-</style>
+Vue.filter("totalMoney", function(value, unit) {
+  return value.toFixed(2) +" "+ unit;
+})
+</script>
+<style src="../css/checkout.css"></style>
+<style src="../css/base.css"></style>
+<style src="../css/modal.css"></style>
+<style src="../css/reset.css"></style>
