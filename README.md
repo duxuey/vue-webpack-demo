@@ -34,7 +34,7 @@ notes:
   原因：for 循环时:key 指定的值不对。 :key相当于是索引的作用，提高循环性能，如果循环量较小，不写也可以的。
   <li v-for="item in productList" :key="item.productId">
 2、渲染图片：v-bind:src
-<img v-bind:src="item.productImage" alt="烟">
+<img v-bind:src(for test)="item.productImage" alt="烟">
  
  3、ESLint:提供插件化的JavaScript代码检查工具。
  优先级则是按照以下顺序（.eslintrc.js > .eslintrc.yaml > .eslintrc.yml > .eslintrc.json > .eslintrc > package.json）
