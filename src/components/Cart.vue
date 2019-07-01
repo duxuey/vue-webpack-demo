@@ -98,14 +98,14 @@
               <div class="cart-foot-l">
                 <div class="item-all-check">
                   <a href="javascript:void 0">
-                    <span class="item-check-btn" :class="{'check':checkAllFlag}" @click="checkAll(true)">
+                    <span class="item-check-btn" :class="{'check':checkAllFlag}" @click="checkAll(!checkAllFlag)">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"></use></svg>
                     </span>
                     <span v-show="!checkAllFlag">全选</span>
                   </a>
                 </div>
                 <div class="item-all-del">
-                  <a href="javascript:void 0" class="item-del-btn" @click="checkAll(false)">
+                  <a href="javascript:void 0" class="item-del-btn" @click="checkAll(checkAllFlag)">
                     <span v-show="checkAllFlag">取消全选</span>
                   </a>
                 </div>
@@ -115,7 +115,7 @@
                   Item total: <span class="total-price">{{totalMoney | totalMoney('元')}}</span>
                 </div>
                 <div class="next-btn-wrap">
-                  <a href="address.html" class="btn btn--red" style="width: 200px">结账</a>
+                  <a href="/#/Address" class="btn btn--red" style="width: 200px">结账</a>
                 </div>
               </div>
             </div>
@@ -147,7 +147,6 @@
 <script>
 import Vue from 'vue';
 
-
 export default {
   data () {
     return {
@@ -157,7 +156,8 @@ export default {
       totalMoney: 0,
       delFlag: false,
       delProductFlag: false,
-      checkAllFlag: false
+      checkAllFlag: false,
+      delProductItem:[]
     }
   },
   filters: {
@@ -197,7 +197,6 @@ export default {
          this.calcTotalPrice();
       },
       selectedProduct: function(item) {
-        debugger;
          if(typeof item.checked == "undefined"){
             Vue.set(item, "checked", true);//给itemset 一个checked变量，值为true
             //this.$set(item, "checked", true);
@@ -206,17 +205,19 @@ export default {
          }
          this.calcTotalPrice();
       },
-      checkAll: function(flag) {
+      checkAll: function (flag) {
         this.checkAllFlag = flag;
         var _this = this;
-        this.productList.forEach(function(value, index){
-            if(typeof value.checked == "undefined"){
-              //Vue.set(value, "checked", this.checkAllFlag);//给itemset 一个checked变量，值为true
-              _this.$set(value, "checked", _this.checkAllFlag);
+        this.productList.forEach(function(item, index){
+            if(typeof item.checked == "undefined", _this.checkAllFlag){
+              //Vue.set(value, "checked", this.checkAllFlag);//给item set 一个checked变量，值为true
+              _this.$set(item, "checked", _this.checkAllFlag);
           }else{
-              value.checked = _this.checkAllFlag;
+              item.checked = _this.checkAllFlag;
           }
-        })
+        });
+
+        this.calcTotalPrice ();
       },
       calcTotalPrice: function () {
         var _this = this;
@@ -227,11 +228,15 @@ export default {
             }
         })
       },
-      delConfirm: function () {
+      delConfirm: function (item) {
         this.delFlag = !this.delFlag;
+        this.delProductItem = item;
       },
       delProduct: function () {
-        
+        var index = this.productList.indexOf(this.delProductItem);
+        this.productList.splice(index, 1);
+        this.delFlag = !this.delFlag;
+        this.calcTotalPrice ();
       }
   }
 }
