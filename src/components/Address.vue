@@ -44,7 +44,7 @@
           <div class="addr-list-wrap">
             <div class="addr-list">
               <ul>
-                <li v-for="(item, index) in filterAddress" v-bind:class="{'check': index == currentIndex}" :key="item" @click="currentIndex=index">
+                <li v-for="(item, index) in filterAddress" v-bind:class="{'check': index == currentIndex}" :key="item.addressId" @click="currentIndex=index">
                   <dl>
                     <dt>{{item.userName}}</dt>
                     <dd class="address">{{item.streetName}}</dd>
@@ -182,21 +182,55 @@ import Vue from 'vue';
 export default {
     data () {
         return {
-            filterAddress:'',
+            addressList: [],
+            currentIndex: 0,
+            limitNumber:3,
+            isDefault: true,
+            shippingMethod: 1
         }
     },
     filters: {
 
     },
     mounted: function () {
+        this.$nextTick(function () {
 
+        });
+        this.getAddressList();
+    },
+    computed: {
+        filterAddress: function (){
+            return this.addressList.slice(0,this.limitNumber);
+        }
     },
     methods: {
-        shippingMethod: function () {
-
+        getAddressList: function () {
+            let _this = this;
+            this.$http("/static/data/address.json", {
+                params:{
+                    id : '111'
+                }
+            }).then( res=> {
+                res = res.data;
+                this.addressList = res.result;
+                console.log("addressList is : ", this.addressList);
+            })
         },
         loadMore: function () {
-
+            if (this.limitNumber == this.addressList.length){
+                this.limitNumber = 3;
+            }else{
+                this.limitNumber = this.addressList.length;
+            }
+        },
+        setDefault: function(addressId){
+            this.addressList.forEach(function(address, index){
+                if (address.addressId == addressId){
+                    address.isDefault = true;
+                }else{
+                    address.isDefault = false;
+                }
+            })
         }
     }
 }
