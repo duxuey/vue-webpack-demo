@@ -29,6 +29,7 @@ export default new Router({
       name: 'Test',
       component: Test
     }
+    
   ]
 })
  
