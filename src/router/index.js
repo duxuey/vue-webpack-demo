@@ -23,6 +23,7 @@ export default new Router({
       name: 'Address',
       component: Address
     }
+    
   ]
 })
  
